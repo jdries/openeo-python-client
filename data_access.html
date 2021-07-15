@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Finding and loading data &#8212; openEO Python Client 0.8.1a2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Working with processes" href="processes.html" />
+    <link rel="prev" title="Basic Usage" href="basics.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">openEO Python Client</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Open-EO&repo=openeo-python-client&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Open-EO/openeo-python-client">
+    <img
+        alt="https://secure.travis-ci.org/Open-EO/openeo-python-client.svg?branch=master"
+        src="https://secure.travis-ci.org/Open-EO/openeo-python-client.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Finding and loading data</a><ul>
+<li><a class="reference internal" href="#data-discovery">Data discovery</a></li>
+<li><a class="reference internal" href="#loading-collections">Loading collections</a><ul>
+<li><a class="reference internal" href="#exploring-collections">Exploring collections</a></li>
+<li><a class="reference internal" href="#data-reduction">Data reduction</a></li>
+<li><a class="reference internal" href="#filtering-on-properties">Filtering on properties</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="basics.html" title="previous chapter">Basic Usage</a></li>
+      <li>Next: <a href="processes.html" title="next chapter">Working with processes</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><!-- Alabaster (krTheme++) Hacks -->
+
+<div class="sidebar-meta">
+<h3>Meta</h3>
+<div>Docs for openEO Python Client</div>
+<div>Version: <code>0.8.1a2</code></div>
+<div>Last updated: 2021/07/15</div>
+</div>
+
+<!-- CSS Adjustments from requests: https://github.com/kennethreitz/requests/blob/master/docs/_templates/hacks.html -->
+<style type="text/css">
+  /* Rezzy requires precise alignment. */
+  img.logo {margin-left: -20px!important;}
+  /* "Quick Search" should be capitalized. */
+  div#searchbox h3 {text-transform: capitalize;}
+  /* Make the document a little wider, less code is cut-off. */
+  div.document {width: 1008px;}
+  /* Much-improved spacing around code blocks. */
+  div.highlight pre {padding: 11px 14px;}
+  /* Remain Responsive! */
+  @media screen and (max-width: 1008px) {
+    div.sphinxsidebar {display: none;}
+    div.document {width: 100%!important;}
+    /* Have code blocks escape the document right-margin. */
+    div.highlight pre {margin-right: -30px;}
+  }
+
+  /* Reduce space between paragraphs for better visual structure */
+  p { margin: 1ex 0; }
+
+  /* Hide "view source code" links by default, only show on hover */
+  dt .viewcode-link { visibility: hidden; font-size: 70%; }
+  dt:hover .viewcode-link { visibility: visible; }
+
+  /* More breathing space between successive methods */
+  dl { margin-bottom: 1.5em; }
+
+  dl.field-list > dt {
+      /* Cleaner aligning of Parameters/Returns/Raises listing with method description paragraphs */
+      padding-left: 0;
+      /* Make Parameters/Returns/Raises labels less dominant */
+      text-transform: uppercase;
+      font-size: 70%;
+  }
+
+  .sidebar-meta {
+      font-size: 80%;
+  }
+
+</style>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="finding-and-loading-data">
+<h1>Finding and loading data<a class="headerlink" href="#finding-and-loading-data" title="Permalink to this headline">¶</a></h1>
+<p>As illustrated in the basic concepts, most openEO scripts start with ‘load_collection’, but this skips the step of
+actually finding out which collection to load. This section dives a bit deeper into finding the right data, and some more
+advanced data loading use cases.</p>
+<section id="data-discovery">
+<h2>Data discovery<a class="headerlink" href="#data-discovery" title="Permalink to this headline">¶</a></h2>
+<p>To explore data in a given backend, it is recommended to use a more visual tool like the openEO Hub
+(<a class="reference external" href="http://hub.openeo.org/">http://hub.openeo.org/</a>). This shows available collections, and metadata in a user-friendly manner.</p>
+<p>Next to that, the client also offers various methods:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="api.html#openeo.rest.connection.Connection.list_collection_ids" title="openeo.rest.connection.Connection.list_collection_ids"><code class="xref py py-func docutils literal notranslate"><span class="pre">list_collection_ids()</span></code></a> to list all collection ids</p></li>
+<li><p><a class="reference internal" href="api.html#openeo.rest.connection.Connection.list_collections" title="openeo.rest.connection.Connection.list_collections"><code class="xref py py-func docutils literal notranslate"><span class="pre">list_collections()</span></code></a> to list all collection metadata</p></li>
+<li><p><a class="reference internal" href="api.html#openeo.rest.connection.Connection.describe_collection" title="openeo.rest.connection.Connection.describe_collection"><code class="xref py py-func docutils literal notranslate"><span class="pre">describe_collection()</span></code></a> to show metadata for a particular collection</p></li>
+</ul>
+<p>When using these methods inside a Jupyter notebook, you should notice that the output is rendered in a user friendly way.</p>
+<p>In a regular script, these methods can be used to programmatically find a collection that matches specific criteria.</p>
+<p>As a user, make sure to carefully read the documentation for a given collection, as there can be important differences.
+You should also be aware of the data retention policy of a given collection: some data archives only retain the last 3 months
+for instance, making them only suitable for specific types of analysis. Such differences can have an impact on the reproducability
+of your openEO scripts.</p>
+<p>Also note that the openEO metadata may use links to point to much more information for a particular collection. For instance
+technical specification on how the data was preprocessed, or viewers that allow you to visually explore the data. This can
+drastically improve your understanding of the dataset.</p>
+<p>Finally, licensing information is important to keep an eye on: not all data is free and open.</p>
+</section>
+<section id="loading-collections">
+<h2>Loading collections<a class="headerlink" href="#loading-collections" title="Permalink to this headline">¶</a></h2>
+<p>Many examples already show the basic load_collection process, with filters on space, time and bands. In this section, we
+want to dive a bit into details, and more advanced cases.</p>
+<section id="exploring-collections">
+<h3>Exploring collections<a class="headerlink" href="#exploring-collections" title="Permalink to this headline">¶</a></h3>
+<p>A common question from users is about very specific details of a collection, we’d like to list some examples and solutions here:</p>
+<ul class="simple">
+<li><p>The collection data type, and range of values, can be determined by simply downloading a sample of data, as NetCDF or Geotiff. This can in fact be done at any point in the design of your script, to get a good idea of intermediate results.</p></li>
+<li><p>Data availability, and available timestamps can be retrieved by computing average values for your area of interest. Just construct a polygon, and retrieve those statistics. For optical data, this can also be used to get an idea on cloud statistics.</p></li>
+<li><p>Most collections have a native projection system, again a simple download will give you this information if its not clear from the metadata.</p></li>
+</ul>
+</section>
+<section id="data-reduction">
+<h3>Data reduction<a class="headerlink" href="#data-reduction" title="Permalink to this headline">¶</a></h3>
+<p>The purpose of the filters in load_collection is to reduce the amount of data that is loaded by the backend. We
+recommend doing this, especially when experimenting with a script, as this can dramatically increase the response time for
+your calls. Gradually increasing the amount of data processed is recommended when tests on smaller areas are successfull.</p>
+<p>Next to specifying filters inside load_collection, there are also possibilities to filter at a later stage in your process graph.
+This can be very convenient, as you can avoid passing in all filtering parameters to the method that constructs a particular
+datacube.</p>
+<p>Another nice feature, is that processes that work on a vector feature, like aggregated statistics for a polygon, or masking
+by polygon can also be used by a backend to apply a spatial filter. This way, you do not need to explicitly set these
+filters yourself.</p>
+</section>
+<section id="filtering-on-properties">
+<h3>Filtering on properties<a class="headerlink" href="#filtering-on-properties" title="Permalink to this headline">¶</a></h3>
+<p>Although openEO presents data in a data cube, a lot of collections are still backed by a product based catalog. This
+allows filtering on properties of that catalog.</p>
+<p>One example is filtering on the relative orbit number of SAR data. This example shows how that can be achieved:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">connection</span><span class="o">.</span><span class="n">load_collection</span><span class="p">(</span>
+    <span class="s2">&quot;S1_GRD&quot;</span><span class="p">,</span>
+    <span class="n">spatial_extent</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;west&quot;</span><span class="p">:</span> <span class="mf">16.1</span><span class="p">,</span> <span class="s2">&quot;east&quot;</span><span class="p">:</span> <span class="mf">16.6</span><span class="p">,</span> <span class="s2">&quot;north&quot;</span><span class="p">:</span> <span class="mf">48.6</span><span class="p">,</span> <span class="s2">&quot;south&quot;</span><span class="p">:</span> <span class="mf">47.2</span><span class="p">},</span>
+    <span class="n">temporal_extent</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;2018-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2019-01-01&quot;</span><span class="p">],</span>
+    <span class="n">properties</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;relativeOrbitNumber&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">eq</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">116</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Property filters in openEO are also specified by small process graphs, that allow the use of the same generic processes
+defined by openEO. This is the ‘lambda’ process that you see in the property dictionary. Do note that not all processes
+make sense for product filtering, and can not always be properly translated into the query language of the catalog.
+Hence, some experimentation may be needed to find a filter that works.</p>
+<p>One important caveat in this example is that ‘relativeOrbitNumber’ is a catalog specific property name. Meaning that
+different archives may choose a different name for a given property, and the properties that are available can depend
+on the collection and the catalog that is used by it. This is not a problem caused by openEO, but by the limited
+standardization between catalogs of EO data.</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2017 - 2021, Jeroen Dries.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/data_access.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Open-EO/openeo-python-client" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Dataset sampling &#8212; openEO Python Client 0.8.1a2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sharing of user-defined processes" href="udp_sharing.html" />
+    <link rel="prev" title="Analysis Ready Data generation" href="ard.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">openEO Python Client</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Open-EO&repo=openeo-python-client&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Open-EO/openeo-python-client">
+    <img
+        alt="https://secure.travis-ci.org/Open-EO/openeo-python-client.svg?branch=master"
+        src="https://secure.travis-ci.org/Open-EO/openeo-python-client.svg?branch=master"
+    />
+</a>
+</p>
+
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">OpenEO CookBook</a><ul>
+      <li>Previous: <a href="ard.html" title="previous chapter">Analysis Ready Data generation</a></li>
+      <li>Next: <a href="udp_sharing.html" title="next chapter">Sharing of user-defined processes</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><!-- Alabaster (krTheme++) Hacks -->
+
+<div class="sidebar-meta">
+<h3>Meta</h3>
+<div>Docs for openEO Python Client</div>
+<div>Version: <code>0.8.1a2</code></div>
+<div>Last updated: 2021/07/15</div>
+</div>
+
+<!-- CSS Adjustments from requests: https://github.com/kennethreitz/requests/blob/master/docs/_templates/hacks.html -->
+<style type="text/css">
+  /* Rezzy requires precise alignment. */
+  img.logo {margin-left: -20px!important;}
+  /* "Quick Search" should be capitalized. */
+  div#searchbox h3 {text-transform: capitalize;}
+  /* Make the document a little wider, less code is cut-off. */
+  div.document {width: 1008px;}
+  /* Much-improved spacing around code blocks. */
+  div.highlight pre {padding: 11px 14px;}
+  /* Remain Responsive! */
+  @media screen and (max-width: 1008px) {
+    div.sphinxsidebar {display: none;}
+    div.document {width: 100%!important;}
+    /* Have code blocks escape the document right-margin. */
+    div.highlight pre {margin-right: -30px;}
+  }
+
+  /* Reduce space between paragraphs for better visual structure */
+  p { margin: 1ex 0; }
+
+  /* Hide "view source code" links by default, only show on hover */
+  dt .viewcode-link { visibility: hidden; font-size: 70%; }
+  dt:hover .viewcode-link { visibility: visible; }
+
+  /* More breathing space between successive methods */
+  dl { margin-bottom: 1.5em; }
+
+  dl.field-list > dt {
+      /* Cleaner aligning of Parameters/Returns/Raises listing with method description paragraphs */
+      padding-left: 0;
+      /* Make Parameters/Returns/Raises labels less dominant */
+      text-transform: uppercase;
+      font-size: 70%;
+  }
+
+  .sidebar-meta {
+      font-size: 80%;
+  }
+
+</style>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="dataset-sampling">
+<h1>Dataset sampling<a class="headerlink" href="#dataset-sampling" title="Permalink to this headline">¶</a></h1>
+<p>EXPERIMENTAL</p>
+<p>Tested on:</p>
+<ul class="simple">
+<li><p>Terrascope</p></li>
+</ul>
+<p>A number of use cases do not require a full datacube to be computed,
+but rather want to extract a result at specific locations.
+Examples include extracting training data for model calibration, or computing the result for
+areas where validation data is available.</p>
+<p>Sampling a datacube in openEO currently requires polygons as sampling features. Other types of geometry, like lines
+and points, should be converted into polygons first by applying a buffering operation. Using the spatial resolution
+of the datacube as buffer size can be a way to approximate sampling at a point.</p>
+<p>To indicate to openEO that we only want to compute the datacube for certain polygon features, we use the
+<a class="reference internal" href="../api.html#openeo.rest.datacube.DataCube.filter_spatial" title="openeo.rest.datacube.DataCube.filter_spatial"><code class="xref py py-func docutils literal notranslate"><span class="pre">filter_spatial()</span></code></a> method.</p>
+<p>Next to that, we will also indicate that we want to write multiple output files. This is more convenient, as we will
+want to have one or more raster outputs per sampling feature, for convenient further processing. To do this, we set
+the ‘sample_by_feature’ output format property, which is available for the netCDF and GTiff output formats.</p>
+<p>Combining all of this, results in the following sample code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">s2_bands</span> <span class="o">=</span> <span class="n">auth_connection</span><span class="o">.</span><span class="n">load_collection</span><span class="p">(</span><span class="s2">&quot;TERRASCOPE_S2_TOC_V2&quot;</span><span class="p">,</span>
+                                           <span class="n">bands</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;B04&quot;</span><span class="p">],</span>
+                                           <span class="n">temporal_extent</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;2020-05-01&quot;</span><span class="p">,</span><span class="s2">&quot;2020-06-01&quot;</span><span class="p">]</span>
+                                           <span class="p">)</span>
+<span class="n">s2_bands</span> <span class="o">=</span> <span class="n">s2_bands</span><span class="o">.</span><span class="n">filter_spatial</span><span class="p">(</span><span class="s2">&quot;https://artifactory.vgt.vito.be/testdata-public/parcels/test_10.geojson&quot;</span><span class="p">)</span>
+<span class="n">job</span> <span class="o">=</span> <span class="n">s2_bands</span><span class="o">.</span><span class="n">send_job</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Sentinel2&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Sentinel-2 L2A bands&quot;</span><span class="p">,</span><span class="n">out_format</span><span class="o">=</span><span class="s2">&quot;netCDF&quot;</span><span class="p">,</span><span class="n">sample_by_feature</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Sampling only works for batch jobs, because it results in multiple output files, which can not be conveniently transferred
+in a synchronous call.</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2017 - 2021, Jeroen Dries.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/cookbook/sampling.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Open-EO/openeo-python-client" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

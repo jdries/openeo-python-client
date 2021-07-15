@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>User-Defined Functions (UDF) explained &#8212; openEO Python Client 0.8.1a2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="DataCube construction" href="datacube_construction.html" />
+    <link rel="prev" title="Authentication and Account Management" href="auth.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">openEO Python Client</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Open-EO&repo=openeo-python-client&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Open-EO/openeo-python-client">
+    <img
+        alt="https://secure.travis-ci.org/Open-EO/openeo-python-client.svg?branch=master"
+        src="https://secure.travis-ci.org/Open-EO/openeo-python-client.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">User-Defined Functions (UDF) explained</a><ul>
+<li><a class="reference internal" href="#example-smoothing-timeseries-with-a-user-defined-function-udf">Example: Smoothing timeseries with a user defined function (UDF)</a></li>
+<li><a class="reference internal" href="#example-downloading-a-datacube-and-executing-an-udf-locally">Example: downloading a datacube and executing an UDF locally</a></li>
+<li><a class="reference internal" href="#udf-function-names">UDF function names</a></li>
+<li><a class="reference internal" href="#profile-a-process-server-side">Profile a process server-side</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#viewing-profiling-information">Viewing profiling information</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="auth.html" title="previous chapter">Authentication and Account Management</a></li>
+      <li>Next: <a href="datacube_construction.html" title="next chapter">DataCube construction</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><!-- Alabaster (krTheme++) Hacks -->
+
+<div class="sidebar-meta">
+<h3>Meta</h3>
+<div>Docs for openEO Python Client</div>
+<div>Version: <code>0.8.1a2</code></div>
+<div>Last updated: 2021/07/15</div>
+</div>
+
+<!-- CSS Adjustments from requests: https://github.com/kennethreitz/requests/blob/master/docs/_templates/hacks.html -->
+<style type="text/css">
+  /* Rezzy requires precise alignment. */
+  img.logo {margin-left: -20px!important;}
+  /* "Quick Search" should be capitalized. */
+  div#searchbox h3 {text-transform: capitalize;}
+  /* Make the document a little wider, less code is cut-off. */
+  div.document {width: 1008px;}
+  /* Much-improved spacing around code blocks. */
+  div.highlight pre {padding: 11px 14px;}
+  /* Remain Responsive! */
+  @media screen and (max-width: 1008px) {
+    div.sphinxsidebar {display: none;}
+    div.document {width: 100%!important;}
+    /* Have code blocks escape the document right-margin. */
+    div.highlight pre {margin-right: -30px;}
+  }
+
+  /* Reduce space between paragraphs for better visual structure */
+  p { margin: 1ex 0; }
+
+  /* Hide "view source code" links by default, only show on hover */
+  dt .viewcode-link { visibility: hidden; font-size: 70%; }
+  dt:hover .viewcode-link { visibility: visible; }
+
+  /* More breathing space between successive methods */
+  dl { margin-bottom: 1.5em; }
+
+  dl.field-list > dt {
+      /* Cleaner aligning of Parameters/Returns/Raises listing with method description paragraphs */
+      padding-left: 0;
+      /* Make Parameters/Returns/Raises labels less dominant */
+      text-transform: uppercase;
+      font-size: 70%;
+  }
+
+  .sidebar-meta {
+      font-size: 80%;
+  }
+
+</style>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="user-defined-functions-udf-explained">
+<span id="user-defined-functions"></span><h1>User-Defined Functions (UDF) explained<a class="headerlink" href="#user-defined-functions-udf-explained" title="Permalink to this headline">¶</a></h1>
+<p>User defined functions are a very important feature of OpenEO. They allow you as a user to
+reuse existing code, by submitting it to the backend.</p>
+<p>As datacubes can be very large, the backend will only be able to run your code on a smaller chunk
+of the whole cube. So you need to help the backend a bit, by designing your code to work on as small
+a piece of data as possible.</p>
+<p>There are a few different types of operations where UDF’s can be used:</p>
+<ol class="arabic simple">
+<li><p>Applying a process to each pixel: <a class="reference external" href="https://openeo.org/documentation/1.0/processes.html#apply">apply</a></p></li>
+<li><p>Applying a process to all pixels along a dimension, without changing cardinality: <a class="reference external" href="https://openeo.org/documentation/1.0/processes.html#apply_dimension">apply_dimension</a></p></li>
+<li><p>Reducing values along a dimension: <a class="reference external" href="https://openeo.org/documentation/1.0/processes.html#reduce_dimension">reduce_dimension</a></p></li>
+<li><p>Applying a process to all pixels in a multidimensional neighborhood:  <a class="reference external" href="https://openeo.org/documentation/1.0/processes.html#apply_neighborhood">apply_neighborhood</a></p></li>
+</ol>
+<p>Not all functions will require you to write a custom process. For instance, if you want to take the absolute
+value of your datacube, you can simply use the predefined absolute value function. In fact, it is
+recommended to try and use predefined functions, as they can be more efficiently implemented.</p>
+<p>However, when you have a large piece of code that is hard to transform into predefined openEO functions,
+then it makes sense to use the UDF functionality.</p>
+<p>The section below gives an example to get you started.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Don not confuse user-defined functions (abbreviated as UDF) with
+<strong>user-defined processes</strong> (sometimes abbreviated as UDP) in openEO,
+which is a way to define and use your own process graphs
+as reusable building blocks.
+see <a class="reference internal" href="udp.html#user-defined-processes"><span class="std std-ref">User-Defined Processes</span></a> for more information.</p>
+</div>
+<section id="example-smoothing-timeseries-with-a-user-defined-function-udf">
+<h2>Example: Smoothing timeseries with a user defined function (UDF)<a class="headerlink" href="#example-smoothing-timeseries-with-a-user-defined-function-udf" title="Permalink to this headline">¶</a></h2>
+<p>In this example, we start from the <code class="docutils literal notranslate"><span class="pre">evi_cube</span></code> that was created in the previous example, and want to
+apply a temporal smoothing on it. More specifically, we want to use the “Savitzky Golay” smoother
+that is available in the SciPy Python library.</p>
+<p>To ensure that openEO understand your function, it needs to follow some rules, the UDF specification.
+This is an example that follows those rules:</p>
+<div class="literal-block-wrapper docutils container" id="savgol-udf">
+<div class="code-block-caption"><span class="caption-text">Example UDF code <code class="docutils literal notranslate"><span class="pre">smooth_savitzky_golay.py</span></code></span><a class="headerlink" href="#savgol-udf" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">savgol_filter</span>
+
+<span class="kn">from</span> <span class="nn">openeo.udf</span> <span class="kn">import</span> <span class="n">XarrayDataCube</span>
+
+
+<span class="k">def</span> <span class="nf">apply_datacube</span><span class="p">(</span><span class="n">cube</span><span class="p">:</span> <span class="n">XarrayDataCube</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">XarrayDataCube</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply Savitzky-Golay smoothing to a timeseries datacube.</span>
+<span class="sd">    This UDF preserves dimensionality, and assumes an input</span>
+<span class="sd">    datacube with a temporal dimension &#39;t&#39; as input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">array</span><span class="p">:</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">get_array</span><span class="p">()</span>
+    <span class="n">filled</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+    <span class="n">smoothed_array</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">filled</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">XarrayDataCube</span><span class="p">(</span>
+        <span class="n">array</span><span class="o">=</span><span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">smoothed_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">array</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">array</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The method signature of the UDF is very important, because the backend will use it to detect
+the type of UDF.
+This particular example accepts a <a class="reference internal" href="api.html#openeo.rest.datacube.DataCube" title="openeo.rest.datacube.DataCube"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataCube</span></code></a> object as input and also returns a <a class="reference internal" href="api.html#openeo.rest.datacube.DataCube" title="openeo.rest.datacube.DataCube"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataCube</span></code></a> object.
+The type annotations and method name are actually used to detect how to invoke the UDF, so make sure they remain unchanged.</p>
+<p>Once the UDF is defined in a separate file, we need to load it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">load_udf</span><span class="p">(</span><span class="n">relative_path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">relative_path</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">smoothing_udf</span> <span class="o">=</span> <span class="n">load_udf</span><span class="p">(</span><span class="s1">&#39;smooth_savitzky_golay.py&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">smoothing_udf</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>after that, we can simply apply it along a dimension:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">smoothed_evi</span> <span class="o">=</span> <span class="n">evi_cube_masked</span><span class="o">.</span><span class="n">apply_dimension</span><span class="p">(</span>
+    <span class="n">code</span><span class="o">=</span><span class="n">smoothing_udf</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s1">&#39;Python&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-downloading-a-datacube-and-executing-an-udf-locally">
+<h2>Example: downloading a datacube and executing an UDF locally<a class="headerlink" href="#example-downloading-a-datacube-and-executing-an-udf-locally" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes it is advantageous to run a UDF on the client machine (for example when developing/testing that UDF).
+This is possible by using the convenience function <a class="reference internal" href="api.html#openeo.udf.run_code.execute_local_udf" title="openeo.udf.run_code.execute_local_udf"><code class="xref py py-func docutils literal notranslate"><span class="pre">openeo.udf.run_code.execute_local_udf()</span></code></a>.
+The steps to run a UDF (like the code from <code class="docutils literal notranslate"><span class="pre">smooth_savitzky_golay.py</span></code> above) are as follows:</p>
+<ul class="simple">
+<li><p>Run the processes (or process graph) preceding the UDF and download the result in ‘NetCDF’ or ‘JSON’ format.</p></li>
+<li><p>Run <a class="reference internal" href="api.html#openeo.udf.run_code.execute_local_udf" title="openeo.udf.run_code.execute_local_udf"><code class="xref py py-func docutils literal notranslate"><span class="pre">openeo.udf.run_code.execute_local_udf()</span></code></a> on the data file.</p></li>
+</ul>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_process</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">load_collection</span><span class="p">(</span><span class="o">...</span>
+
+<span class="n">my_process</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;test_input.nc&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;NetCDF&#39;</span><span class="p">)</span>
+
+<span class="n">smoothing_udf</span> <span class="o">=</span> <span class="n">load_udf</span><span class="p">(</span><span class="s1">&#39;smooth_savitzky_golay.py&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">openeo.udf</span> <span class="kn">import</span> <span class="n">execute_local_udf</span>
+<span class="n">execute_local_udf</span><span class="p">(</span><span class="n">smoothing_udf</span><span class="p">,</span> <span class="s1">&#39;test_input.nc&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;netcdf&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: this algorithm’s primary purpose is to aid client side development of UDFs using small datasets. It is not designed for large jobs.</p>
+</section>
+<section id="udf-function-names">
+<h2>UDF function names<a class="headerlink" href="#udf-function-names" title="Permalink to this headline">¶</a></h2>
+<p>There’s a predefined set of function signatures that you have to use to implement a UDF:</p>
+<span class="target" id="module-openeo.udf.udf_signatures"></span><p>This module defines a number of function signatures that can be implemented by UDF’s.
+Both the name of the function and the argument types are/can be used by the backend to validate if the provided UDF
+is compatible with the calling context of the process graph in which it is used.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="openeo.udf.udf_signatures.apply_datacube">
+<span class="sig-prename descclassname"><span class="pre">openeo.udf.udf_signatures.</span></span><span class="sig-name descname"><span class="pre">apply_datacube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openeo/udf/udf_signatures.html#apply_datacube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openeo.udf.udf_signatures.apply_datacube" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map a <code class="xref py py-class docutils literal notranslate"><span class="pre">XarrayDataCube</span></code> to another <code class="xref py py-class docutils literal notranslate"><span class="pre">XarrayDataCube</span></code>.</p>
+<p>Depending on the context in which this function is used, the <code class="xref py py-class docutils literal notranslate"><span class="pre">XarrayDataCube</span></code> dimensions
+have to be retained or can be chained.
+For instance, in the context of a reducing operation along a dimension,
+that dimension will have to be reduced to a single value.
+In the context of a 1 to 1 mapping operation, all dimensions have to be retained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="api.html#openeo.udf.xarraydatacube.XarrayDataCube" title="openeo.udf.xarraydatacube.XarrayDataCube"><code class="xref py py-class docutils literal notranslate"><span class="pre">XarrayDataCube</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>cube</strong> (<a class="reference internal" href="api.html#openeo.udf.xarraydatacube.XarrayDataCube" title="openeo.udf.xarraydatacube.XarrayDataCube"><code class="xref py py-class docutils literal notranslate"><span class="pre">XarrayDataCube</span></code></a>) – input data cube</p></li>
+<li><p><strong>context</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing user context.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>output data cube</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openeo.udf.udf_signatures.apply_timeseries">
+<span class="sig-prename descclassname"><span class="pre">openeo.udf.udf_signatures.</span></span><span class="sig-name descname"><span class="pre">apply_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openeo/udf/udf_signatures.html#apply_timeseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openeo.udf.udf_signatures.apply_timeseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a timeseries of values, without changing the time instants.</p>
+<p>This can for instance be used for smoothing or gap-filling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>series</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – A Pandas Series object with a date-time index.</p></li>
+<li><p><strong>context</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing user context.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A Pandas Series object with the same datetime index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openeo.udf.udf_signatures.apply_udf_data">
+<span class="sig-prename descclassname"><span class="pre">openeo.udf.udf_signatures.</span></span><span class="sig-name descname"><span class="pre">apply_udf_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openeo/udf/udf_signatures.html#apply_udf_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openeo.udf.udf_signatures.apply_udf_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic UDF function that directly manipulates a <code class="xref py py-class docutils literal notranslate"><span class="pre">UdfData</span></code> object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="api.html#openeo.udf.udf_data.UdfData" title="openeo.udf.udf_data.UdfData"><code class="xref py py-class docutils literal notranslate"><span class="pre">UdfData</span></code></a>) – <code class="xref py py-class docutils literal notranslate"><span class="pre">UdfData</span></code> object to manipulate in-place</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="profile-a-process-server-side">
+<h2>Profile a process server-side<a class="headerlink" href="#profile-a-process-server-side" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Experimental feature - This feature only works on backends running the Geotrellis implementation, and has not yet been
+adopted in the openEO API.</p>
+</div>
+<p>Sometimes users want to ‘profile’ their UDF on the backend. While it’s recommended to first profile it offline, in the
+same manner as you can debug UDF’s, backends may support profiling directly.
+Note that this will only generate statistics over the python part of the execution, therefore it is only suitable for profiling UDFs.</p>
+<section id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<p>Only batch jobs are supported! In order to turn on profiling, set ‘profile’ to ‘true’ in job options:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">job_options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;profile&#39;</span><span class="p">:</span><span class="s1">&#39;true&#39;</span><span class="p">}</span>
+<span class="o">...</span> <span class="c1"># prepare the process</span>
+<span class="n">process</span><span class="o">.</span><span class="n">execute_batch</span><span class="p">(</span><span class="s1">&#39;result.tif&#39;</span><span class="p">,</span><span class="n">job_options</span><span class="o">=</span><span class="n">job_options</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When the process has finished, it will also download a file called ‘profile_dumps.tar.gz’:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">rdd_-1.pstats</span></code> is the profile data of the python driver,</p></li>
+<li><p>the rest are the profiling results of the individual rdd id-s (that can be correlated with the execution using the SPARK UI).</p></li>
+</ul>
+</section>
+<section id="viewing-profiling-information">
+<h3>Viewing profiling information<a class="headerlink" href="#viewing-profiling-information" title="Permalink to this headline">¶</a></h3>
+<p>The simplest way is to visualize the results with a graphical visualization tool called kcachegrind.
+In order to do that, install <a class="reference external" href="http://kcachegrind.sourceforge.net/">kcachegrind</a> packages (most linux distributions have it installed by default) and it’s python connector <a class="reference external" href="https://pypi.org/project/pyprof2calltree/">pyprof2calltree</a>.
+From command line run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyprof2calltree</span> <span class="n">rdd_</span><span class="o">&lt;</span><span class="n">INTERESTING_RDD_ID</span><span class="o">&gt;.</span><span class="n">pstats</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Another way is to use the builtin pstats functionality from within python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pstats</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">pstats</span><span class="o">.</span><span class="n">Stats</span><span class="p">(</span><span class="s1">&#39;restats&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">print_stats</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>An example code can be found <a class="reference external" href="https://github.com/Open-EO/openeo-python-client/tree/master/examples/profiling_example.py">here</a> .</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2017 - 2021, Jeroen Dries.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/udf.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/Open-EO/openeo-python-client" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
